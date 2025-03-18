@@ -6,8 +6,10 @@ const openai = new OpenAI({
 
 export async function getFakeArtistAnalysis(artistData) {
   const systemPrompt = `
-    You are a helpful AI that examines Spotify data to determine if an artist might be "fake."
+    You are a helpful AI that examines Spotify data to determine if an artist might be "fake." or not.
+    Search for the artist's name, followers, popularity, and social presence in Instagram, Facebook, and Wikipedia.
     Return JSON with fields: "score" (0 to 100) and "analysis" (short text).
+    Respond with only a JSON object.
   `;
 
   const userPrompt = `
@@ -31,10 +33,15 @@ export async function getFakeArtistAnalysis(artistData) {
   });
 
   const rawText = completion.choices[0].message?.content;
+  console.log('Raw AI response:', rawText);
 
-  // Attempt to parse JSON from the AI response
   try {
-    const result = JSON.parse(rawText);
+    const jsonMatch = rawText.match(/{[\s\S]*}/);
+    if (!jsonMatch) {
+      throw new Error("No valid JSON object found in the AI response.");
+    }
+    const jsonString = jsonMatch[0];
+    const result = JSON.parse(jsonString);
     return {
       score: result.score ?? 0,
       analysis: result.analysis ?? 'No analysis provided.',

@@ -1,4 +1,3 @@
-// app/api/check-artist/route.js
 import { NextResponse } from 'next/server';
 import { getArtistByName } from '@/utils/spotify';
 import { checkWikipediaPresence } from '@/utils/wikipedia';
@@ -11,7 +10,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Missing artistName' }, { status: 400 });
     }
 
-    // Fetch from Spotify
+    // Fetch artist info from Spotify including photo, monthlyListeners, and verified status.
     const artist = await getArtistByName(artistName);
     if (!artist) {
       return NextResponse.json(
@@ -20,14 +19,17 @@ export async function POST(request) {
       );
     }
 
-    // Wikipedia check
+    // Perform a Wikipedia check for additional context.
     const wikiData = await checkWikipediaPresence(artistName);
 
-    // Combine into the data we’ll pass to OpenAI
+    // Combine artist data including the new Spotify fields.
     const artistData = {
       name: artist.name,
-      followers: artist.followers?.total ?? 0,
-      popularity: artist.popularity ?? 0,
+      followers: artist.followers,
+      popularity: artist.popularity,
+      photo: artist.photo,
+      monthlyListeners: artist.monthlyListeners,
+      verified: artist.verified,
       socialPresence: {
         hasWiki: wikiData.hasWikipedia,
         wikiTitle: wikiData.pageTitle,
@@ -35,7 +37,7 @@ export async function POST(request) {
       },
     };
 
-    // Get analysis from OpenAI
+    // Get analysis from OpenAI with the full artist data.
     const aiResult = await getFakeArtistAnalysis(artistData);
 
     return NextResponse.json({
@@ -43,6 +45,12 @@ export async function POST(request) {
       fakeScore: aiResult.score,
       analysis: aiResult.analysis,
       wikiData,
+      spotifyInfo: {
+        followers: artistData.followers,
+        photo: artistData.photo,
+        monthlyListeners: artistData.monthlyListeners,
+        verified: artistData.verified,
+      },
     });
   } catch (err) {
     console.error('Error in check-artist route:', err);
