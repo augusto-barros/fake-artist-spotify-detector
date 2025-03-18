@@ -122,7 +122,7 @@ export default function Home() {
 
           {result.spotifyInfo && (
             <div className="mt-4 bg-gray-700 p-3 rounded">
-              <h3 className="font-bold mb-2">Spotify Information ✅</h3>
+              <h3 className="font-bold mb-2">Spotify Information</h3>
               <p className="mb-1">
                 <strong>Followers:</strong>{' '}
                 {result.spotifyInfo.followers.toLocaleString()}
@@ -138,7 +138,7 @@ export default function Home() {
 
           {result.wikiData && (
             <div className="mt-4 bg-gray-700 p-3 rounded">
-              <h3 className="font-bold">Wikipedia Presence ✅</h3>
+              <h3 className="font-bold">Wikipedia Presence </h3>
               {result.wikiData.hasWikipedia ? (
                 <div>
                   <p>
