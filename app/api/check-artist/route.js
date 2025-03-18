@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getArtistByName } from '@/utils/spotify';
 import { checkWikipediaPresence } from '@/utils/wikipedia';
 import { getFakeArtistAnalysis } from '@/utils/openai';
+import fetchInstagramProfile from '@/utils/instagram';
 
 export async function POST(request) {
   try {
@@ -37,19 +38,34 @@ export async function POST(request) {
       },
     };
 
-    // Get analysis from OpenAI with the full artist data.
-    const aiResult = await getFakeArtistAnalysis(artistData);
+    // Fetch Instagram profile data using the constructed artistData.
+    const instagramResults = await fetchInstagramProfile(artistData);
+    // Assume the actor returns an array; extract the first profile.
+    const instagramProfile =
+      Array.isArray(instagramResults) && instagramResults.length > 0
+        ? instagramResults[0]
+        : {};
+
+    // Get analysis from OpenAI with the full artist data, including Instagram data.
+    const aiResult = await getFakeArtistAnalysis({
+      ...artistData,
+      InstagramData: instagramProfile,
+    });
 
     return NextResponse.json({
       artistName: artistData.name,
       fakeScore: aiResult.score,
       analysis: aiResult.analysis,
       wikiData,
+      instagramData: {
+        followers: instagramProfile.followersCount
+          ? instagramProfile.followersCount.toLocaleString()
+          : 'N/A',
+        verified: instagramProfile.verified ? 'Yes' : 'No',
+      },
       spotifyInfo: {
-        followers: artistData.followers,
+        followers: artistData.followers.toLocaleString(),
         photo: artistData.photo,
-        monthlyListeners: artistData.monthlyListeners,
-        verified: artistData.verified,
       },
     });
   } catch (err) {

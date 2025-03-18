@@ -68,6 +68,7 @@ export default function Home() {
         <div className="mt-6 p-4 w-full max-w-md bg-gray-800 rounded shadow">
           <h2 className="text-3xl text-center font-bold mb-6">Analysis Result</h2>
           
+          {/* Artist Photo & Name */}
           <div className="flex flex-col items-center mb-6">
             {result.spotifyInfo?.photo && (
               <img
@@ -77,16 +78,15 @@ export default function Home() {
               />
             )}
             <h3 className="text-2xl font-bold">{result.artistName}</h3>
-
           </div>
 
-
+          {/* Analysis Text */}
           <p className="mb-3">
             <strong>Analysis:</strong>
             <br /> {result.analysis}
           </p>
 
-
+          {/* Fake Score */}
           <div className="flex justify-between items-center mt-3 mb-3 bg-gray-700 rounded p-4">
             <div className="w-1/6"></div>
             <div className="text-center">
@@ -120,6 +120,7 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Spotify Information */}
           {result.spotifyInfo && (
             <div className="mt-4 bg-gray-700 p-3 rounded">
               <h3 className="font-bold mb-2">Spotify Information</h3>
@@ -136,9 +137,27 @@ export default function Home() {
             </div>
           )}
 
+          {/* Instagram Information */}
+          {result.instagramData && (
+            <div className="mt-4 bg-gray-700 p-3 rounded">
+              <h3 className="font-bold mb-2">Instagram Information</h3>
+              <p className="mb-1">
+                <strong>Followers:</strong>{' '}
+                {result.instagramData.followers
+                  ? result.instagramData.followers.toLocaleString()
+                  : 'N/A'}
+              </p>
+              <p className="mb-1">
+                <strong>Verified:</strong>{' '}
+                {result.instagramData.verified ? 'Yes' : 'No'}
+              </p>
+            </div>
+          )}
+
+          {/* Wikipedia Information */}
           {result.wikiData && (
             <div className="mt-4 bg-gray-700 p-3 rounded">
-              <h3 className="font-bold">Wikipedia Presence </h3>
+              <h3 className="font-bold">Wikipedia Presence</h3>
               {result.wikiData.hasWikipedia ? (
                 <div>
                   <p>
