@@ -1,101 +1,118 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [artistName, setArtistName] = useState('');
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleCheckArtist = async () => {
+    setError(null);
+    setResult(null);
+
+    if (!artistName.trim()) {
+      setError('Please enter an artist name.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch('/api/check-artist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artistName }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Unknown error.');
+      } else {
+        setResult(data);
+      }
+    } catch (err) {
+      console.error('Request error:', err);
+      setError('Failed to call /api/check-artist');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <main className="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center p-8">
+      <h1 className="text-3xl font-bold mb-6">Fake Spotify Artist Detector</h1>
+      <div className="flex flex-col items-center w-full max-w-md">
+        <input
+          type="text"
+          value={artistName}
+          onChange={(e) => setArtistName(e.target.value)}
+          placeholder="Enter an artist name (e.g. Drake)"
+          className="w-full p-2 mb-4 rounded bg-gray-800 text-white outline-none"
+        />
+        <button
+          onClick={handleCheckArtist}
+          className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+        >
+          {loading ? 'Checking...' : 'Check Artist'}
+        </button>
+      </div>
+
+      {error && (
+        <div className="mt-4 p-4 border border-red-500 text-red-300 rounded">
+          {error}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      )}
+
+      {result && (
+        <div className="mt-6 p-4 w-full max-w-md bg-gray-800 rounded shadow">
+          <h2 className="text-xl font-semibold mb-2">Analysis Result</h2>
+          <p className="mb-1">
+            <strong>Artist:</strong> {result.artistName}
+          </p>
+          <p className="mb-1">
+            <strong>Fake Score:</strong> {result.fakeScore} / 100
+          </p>
+          <p>
+            <strong>Analysis:</strong> {result.analysis}
+          </p>
+
+          <div className="mt-3 w-full bg-gray-700 rounded-full h-4 overflow-hidden">
+            <div 
+              className={`h-full ${
+                result.fakeScore < 40 ? 'bg-green-500' : 
+                result.fakeScore < 70 ? 'bg-yellow-500' : 'bg-red-500'
+              }`}
+              style={{ width: `${result.fakeScore}%` }}
+            ></div>
+          </div>
+
+          {/* NEW: Wikipedia Info */}
+          {result.wikiData && (
+            <div className="mt-4 bg-gray-700 p-3 rounded">
+              <h3 className="font-bold">Wikipedia Presence</h3>
+              {result.wikiData.hasWikipedia ? (
+                <div>
+                  <p>We found a Wikipedia page!</p>
+                  <p>
+                    <strong>Page Title:</strong> {result.wikiData.pageTitle}
+                  </p>
+                  <a
+                    href={result.wikiData.pageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 underline"
+                  >
+                    View Wikipedia Article
+                  </a>
+                </div>
+              ) : (
+                <p>No Wikipedia page detected.</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </main>
   );
 }
