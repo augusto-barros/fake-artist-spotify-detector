@@ -14,6 +14,7 @@ export async function getFakeArtistAnalysis(artistData) {
   - The artist's social presence on Instagram, including follower count and verification status.
   - The artist's presence on Wikipedia.
   - Any other relevant data that might indicate the artist is fake or AI-generated.
+  - Scraper the internet to look for any other relevant information.
   Your response should include a "score" from 0 to 100, where a higher score indicates a higher likelihood of the artist being fake, and an "analysis" explaining the reasoning behind the score.
   
     Using these data points, respond only with a JSON object that includes:

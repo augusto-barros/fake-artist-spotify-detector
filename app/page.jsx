@@ -432,7 +432,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="py-8 text-center text-gray-500 text-sm">
-        <p>© {new Date().getFullYear()} Sola, A+ please?</p>
+        <p>Sola, A+ please?</p>
       </footer>
     </div>
   )
